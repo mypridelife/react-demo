@@ -1,22 +1,27 @@
 import React from "react"
-import { createStore } from "redux"
-import { Provider } from "react-redux"
-
+// import MenuList from "../MenuList/MenuList"
+// import ExampleIndex from "../example/ExampleIndex"
+// import UrlParams from "../UrlParams/UrlParams"
 import TodoList from "../TodoList/TodoList"
-import todoReducer from "../TodoList/reducer"
+import CountTest from "../ReduxTest/CountTest"
 
-// create store
-const store = createStore(
-  todoReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-)
-store.subscribe(() => console.log("store", store.getState()))
+import { HashRouter as Router, Switch, Route } from "react-router-dom"
 
-function App() {
-  return (
-    <Provider store={store}>
-      <TodoList />
-    </Provider>
-  )
+class App extends React.Component {
+  render() {
+    return (
+      <Router>
+        <Switch>
+          {/* exact 精确匹配 */}
+          {/* <Route exact path="/" children={<MenuList />} /> */}
+          <Route path="/todo/list" children={<TodoList />} />
+          <Route path="/redux/count" children={<CountTest />} />
+          {/* <Route path="/example/index" children={<ExampleIndex />} />
+          <Route path="/url/params" children={<UrlParams />} /> */}
+        </Switch>
+      </Router>
+    )
+  }
 }
+
 export default App

@@ -1,38 +1,76 @@
 import React, { Component } from "react"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
 import "./TodoList.scss"
-
-import { addOne, setFilter, clearItems, toggleTodo } from "./reducer"
-
 class TodoList extends Component {
   constructor() {
     super()
-    this.todoInput = React.createRef()
+    this.state = {
+      items: (localStorage.getItem("items") && JSON.parse(localStorage.getItem("items"))) || [],
+      text: "",
+      filter: "all",
+    }
+  }
+  componentDidUpdate() {
+    localStorage.setItem("items", JSON.stringify(this.state.items))
+  }
+  handleInputChange(e) {
+    this.setState({
+      text: e.target.value,
+    })
   }
   handleSubmit(e) {
     e.preventDefault()
-    let text = this.todoInput.current.value
-    if (text.length === 0) {
+    if (this.state.text.length === 0) {
       return
     }
-    this.props.addOne({
+    const newItem = {
       id: Date.now(),
-      text,
+      text: this.state.text,
+      done: false,
+    }
+    this.setState({
+      items: [...this.state.items, newItem],
+      text: "",
     })
-    this.todoInput.current.value = ""
   }
   handleItemStateChange(id, checked) {
-    this.props.toggleTodo({
-      id,
-      checked,
+    const temps = this.state.items.map((item) => {
+      if (item.id === id) {
+        item.done = checked
+      }
+      return item
+    })
+    this.setState({
+      items: temps,
     })
   }
-  handleFilter(filterType) {
-    this.props.setFilter({ filterType })
+  setFilter(filter) {
+    this.setState({
+      filter,
+    })
+  }
+  filterItems() {
+    console.log("filterItems")
+
+    let temp
+    if (this.state.filter === "done") {
+      temp = this.state.items.filter((item) => {
+        return item.done
+      })
+      console.log("temp", temp)
+    } else if (this.state.filter === "not") {
+      temp = this.state.items.filter((item) => {
+        return !item.done
+      })
+      console.log("not temp", temp)
+    } else {
+      temp = this.state.items
+    }
+    return temp
   }
   handleClear() {
-    this.props.clearItems()
+    this.setState({
+      items: [],
+    })
   }
 
   render() {
@@ -41,7 +79,14 @@ class TodoList extends Component {
         <form onSubmit={this.handleSubmit.bind(this)} className="m-form">
           <div className="form-body">
             <label htmlFor="new-input-todo">what needs to be done?</label>
-            <input id="new-input-todo" placeholder="todo" ref={this.todoInput} autoFocus />
+            <input
+              id="new-input-todo"
+              name="input-todo"
+              value={this.state.text}
+              onChange={this.handleInputChange.bind(this)}
+              placeholder="todo"
+              autoFocus
+            />
           </div>
           <div className="form-bottom">
             <button type="submit" className="u-button">
@@ -52,20 +97,20 @@ class TodoList extends Component {
 
         <div className="m-filter">
           <button
-            className={(this.props.filterType === "all" ? "u-button-active" : "") + ` u-button`}
-            onClick={this.handleFilter.bind(this, "all")}
+            className={(this.state.filter === "all" ? "u-button-active" : "") + ` u-button`}
+            onClick={this.setFilter.bind(this, "all")}
           >
             All
           </button>
           <button
-            className={(this.props.filterType === "done" ? "u-button-active" : "") + ` u-button`}
-            onClick={this.handleFilter.bind(this, "done")}
+            className={(this.state.filter === "done" ? "u-button-active" : "") + ` u-button`}
+            onClick={this.setFilter.bind(this, "done")}
           >
             Done
           </button>
           <button
-            className={(this.props.filterType === "not" ? "u-button-active" : "") + ` u-button`}
-            onClick={this.handleFilter.bind(this, "not")}
+            className={(this.state.filter === "not" ? "u-button-active" : "") + ` u-button`}
+            onClick={this.setFilter.bind(this, "not")}
           >
             Not
           </button>
@@ -75,7 +120,7 @@ class TodoList extends Component {
         </div>
 
         <TodoItem
-          propsItems={this.props.items}
+          propsItems={this.filterItems()}
           propsItemStateChange={this.handleItemStateChange.bind(this)}
         />
       </div>
@@ -114,28 +159,4 @@ function TodoItem(props) {
   )
 }
 
-const getVisibleTodos = (todos, filterType) => {
-  switch (filterType) {
-    case "all":
-      return todos
-    case "done":
-      return todos.filter((t) => t.done)
-    case "not":
-      return todos.filter((t) => !t.done)
-    default:
-      throw new Error("Unknown filterType: " + filterType)
-  }
-}
-
-const mapStateToProps = (state) => {
-  return {
-    items: getVisibleTodos(state.items, state.filterType),
-    filterType: state.filterType,
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ addOne, toggleTodo, clearItems, setFilter }, dispatch)
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(TodoList)
+export default TodoList

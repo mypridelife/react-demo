@@ -1,0 +1,30 @@
+@svg square {
+  @rect {
+    fill: var(--color, black);
+    width: 100%;
+    height: 100%;
+  }
+}
+.mForm {
+  margin-bottom: 20px;
+}
+.mImg {
+  width: 400px;
+  height: 400px;
+}
+.m1px {
+  margin: 10px 0;
+  border-top: 1px solid #333;
+}
+.m1px2 {
+  margin: 10px 0;
+  height: 1px;
+  width: 750px;
+  background-color: #333;
+}
+
+.mExample {
+  height: 1px;
+  width: 750px;
+  background: white svg(square param(--color #333));
+}
