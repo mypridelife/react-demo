@@ -1,4 +1,6 @@
-# redux-demo
+# react-demo
+
+Switch branch to redux-demo for redux use.
 
 ## start
 
